@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Proyecto TFM</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <!--<div class="row">
+        <div class="col-sm-12">
+            <h3>Proyecto TFM: </h3>
+            <h6>Mostrar requisitos de test y coberturas por casos de test</h6>
+        </div>
+    </div>-->    <div class="row">
+        <div class="col-sm-4 card" style="border-color: #607D8B" id="gra">
+            <div class="form-group">
+                <h6>Ingrese su código: </h6>
+                <textarea class="form-control" id="graTetxt" placeholder="//Ingrese su código" rows="12"></textarea>
+                <button class="btn btn-outline-primary btn-block" type="button" onclick="apply()">Generar TRpath</button>
+            </div>
+            <div class="form-group">
+                <h6>Ruta de requisitos de test:</h6>
+                <textarea class="form-control" id="path" rows="8" readonly></textarea>
+            </div>
+            <div class="form-group">
+                <h6>Generar archivo de test:</h6>
+                <button class="btn btn-outline-secondary btn-block" type="button" onclick="EvoCover()">Use EvoSuite</button>
+                <button class="btn btn-outline-secondary btn-block" type="button" onclick="DiffCover()">Use Diffblue</button>
+
+                <textarea class="form-control" id="testCodeTetxt" placeholder="//Ingrese su test código" rows="6"></textarea>
+                <button class="btn btn-outline-secondary btn-block" type="button" onclick="applyCover()">Cobertura</button>
+
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <h5 class="shadow-sm rounded p-2">CFG</h5>
+                <!--<iframe class="rounded embed-responsive-item" width="100%" height="600px" id="cfgImg" src="loading.gif"></iframe>-->
+            <div class="text-center" style="height: 610px; width: 100%">
+                <img class="rounded" id="cfgImg" style="max-height: 600px" src="loading.gif">
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <h6>Cobertura(EvoSuite)</h6>
+                        <textarea class="form-control" id="coverTetxt" rows="8" readonly></textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <h6>Cobertura(Diffblue)</h6>
+                        <textarea class="form-control" id="coverTetxt2" rows="8" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function apply() {
+        $.ajax({
+            type: 'POST',
+            url: "anltr/getData",
+            dataType:'json',
+            data: {gra:$("#graTetxt").val()},
+            success:function(result) {
+                //init(eval(result.point),eval(result.line));
+                $("#path").html(result.path.replaceAll("],","]<br>"));
+                $("#cfgImg").attr("src","out.png");
+            },
+            error: function (result) {
+            }
+        })
+    }
+    function applyCover() {
+        $.ajax({
+            type: 'POST',
+            url: "anltr/getCover",
+            dataType:'json',
+            data: {gra:$("#graTetxt").val(),code:$("#testCodeTetxt").val()},
+            success:function(result) {
+                //init(eval(result.point),eval(result.line));
+                //$("#path").html(result.path.replaceAll("],","]<br>"));
+                $("#coverTetxt").html(result.coverResult+" \r\n ");
+            },
+            error: function (result) {
+            }
+        })
+    }
+    function EvoCover() {
+        $.ajax({
+            type: 'POST',
+            url: "anltr/getCoverEVO",
+            dataType:'json',
+            data: {gra:$("#graTetxt").val(),code:$("#testCodeTetxt").val()},
+            success:function(result) {
+                $("#coverTetxt").html(result.coverResult+" \r\n ");
+            },
+            error: function (result) {
+            }
+        })
+    }
+    function DiffCover() {
+        $.ajax({
+            type: 'POST',
+            url: "anltr/getCoverDiffblue",
+            dataType:'json',
+            data: {gra:$("#graTetxt").val(),code:$("#testCodeTetxt").val()},
+            success:function(result) {
+                $("#coverTetxt2").html(result.coverResult+" \r\n ");
+            },
+            error: function (result) {
+            }
+        })
+    }
+    $(document).on("ready",function(){
+        $.ajax({
+            type: 'POST',
+            url: "anltr/getData",
+            dataType:'json',
+            data: {gra:"{}"},
+            success:function(result) {
+                //init(eval(result.point),eval(result.line));
+            },
+            error: function (result) {
+            }
+        })
+
+    });
+    function init(data,line) {
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom);
+        var app = {};
+
+        var option;
+
+        option = {
+            title: {
+            },
+            tooltip: {},
+            animationDurationUpdate: 1500,
+            animationEasingUpdate: 'quinticInOut',
+            series: [
+                {
+                    type: 'graph',
+                    layout: 'none',
+                    symbolSize: 50,
+                    roam: true,
+                    label: {
+                        show: true
+                    },
+                    edgeSymbol: ['circle', 'arrow'],
+                    edgeSymbolSize: [4, 10],
+                    edgeLabel: {
+                        fontSize: 14
+                    },
+                    data: data,
+                    // links: [],
+                    links: line,
+                    lineStyle: {
+                        opacity: 0.9,
+                        width: 2,
+                        curveness: 0
+                    }
+                }
+            ]
+        };
+
+        if (option && typeof option === 'object') {
+            myChart.setOption(option);
+        }
+    }
+</script>
+</body>
+</html>
