@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CfgGenerator {
-	// 用于 界面版 读取分析 原来在Test 叫做 getData2(String t)
+	// 用于 界面版 读取分析
     public Java8CustomVisitor analyze(String text){
         Lexer lexer = new Java8Lexer(CharStreams.fromString(text));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -114,6 +114,7 @@ public class CfgGenerator {
 		File out = new File("src\\main\\resources\\static\\out." + type);   // out.gif in this example
 		graph.writeGraphToFile(graph.getGraph(graph.getDotSource(), type), out);
     }
+
 	public String EVOTestName = "";
 	public String DiffblueTestName = "";
 	public String OrTestName = "";
@@ -177,16 +178,13 @@ public class CfgGenerator {
 		if (testTool.equals("EVO")){
 			in = new BufferedReader(new FileReader(
 					"D:\\IDEA\\toolTFM\\src\\evo\\ucm\\yifei\\tooltfm\\example\\"
-					//"D:\\IDEA\\toolTFM\\src\\test\\java\\ucm\\yifei\\tooltfm\\"
-					+"Test21_ESTest.java"));
-			//+EVOTestName +".java"));
+					+EVOTestName +".java"));
+					//"D:\\IDEA\\toolTFM\\src\\test\\java\\ucm\\yifei\\tooltfm\\ +"Test21_ESTest.java"));
 		}
 		else{
 			in = new BufferedReader(new FileReader("D:\\IDEA\\toolTFM\\src\\test\\java\\ucm\\yifei\\tooltfm\\example\\"
-					+"Test21Test.java"));
-		/*BufferedReader in = new BufferedReader(new FileReader("D:\\IDEA\\toolTFM\\src\\test\\java\\ucm\\yifei\\tooltfm\\"
-				+"Test21_ESTest.java"));*/
-			//+DiffblueTestName +".java"));
+					+DiffblueTestName +".java"));
+					//+"Test21Test.java"));
 		}
 		testList = StringUtils.splitTestFile(in);
 
