@@ -20,7 +20,7 @@
         <div class="col-sm-4 card" style="border-color: #607D8B" id="gra">
             <div class="form-group">
                 <h6>Ingrese su código: </h6>
-                <textarea class="form-control" id="graTetxt" placeholder="//Ingrese su código" rows="12"></textarea>
+                <textarea class="form-control" id="graText" placeholder="//Ingrese su código" rows="12"></textarea>
                 <button class="btn btn-outline-primary btn-block" type="button" onclick="apply()">Generar TRpath</button>
             </div>
             <div class="form-group">
@@ -32,9 +32,12 @@
                 <button class="btn btn-outline-secondary btn-block" type="button" onclick="EvoCover()">Use EvoSuite</button>
                 <button class="btn btn-outline-secondary btn-block" type="button" onclick="DiffCover()">Use Diffblue</button>
 
-                <textarea class="form-control" id="testCodeTetxt" placeholder="//Ingrese su test código" rows="6"></textarea>
-                <button class="btn btn-outline-secondary btn-block" type="button" onclick="applyCover()">Cobertura</button>
-
+                <h6 class="mt-2">Pegar un archivo de test aquí:</h6>
+                <textarea class="form-control" id="testCodeText" placeholder="//Ingrese su test código" rows="6"></textarea>
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary btn-block mt-1" type="button" onclick="applyCoverE()">EvoSuite</button>
+                    <button class="btn btn-outline-secondary btn-block mt-1" type="button" onclick="applyCoverD()">Diffblue</button>
+                </div>
             </div>
         </div>
         <div class="col-sm-8">
@@ -47,13 +50,13 @@
                 <div class="col-sm-6">
                     <div class="form-group">
                         <h6>Cobertura(EvoSuite)</h6>
-                        <textarea class="form-control" id="coverTetxt" rows="8" readonly></textarea>
+                        <textarea class="form-control" id="coverText" rows="8" readonly></textarea>
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="form-group">
                         <h6>Cobertura(Diffblue)</h6>
-                        <textarea class="form-control" id="coverTetxt2" rows="8" readonly></textarea>
+                        <textarea class="form-control" id="coverText2" rows="8" readonly></textarea>
                     </div>
                 </div>
             </div>
@@ -66,7 +69,7 @@
             type: 'POST',
             url: "anltr/getData",
             dataType:'json',
-            data: {gra:$("#graTetxt").val()},
+            data: {gra:$("#graText").val()},
             success:function(result) {
                 //init(eval(result.point),eval(result.line));
                 $("#path").html(result.path.replaceAll("],","]<br>"));
@@ -76,16 +79,27 @@
             }
         })
     }
-    function applyCover() {
+    function applyCoverE() {
         $.ajax({
             type: 'POST',
             url: "anltr/getCover",
             dataType:'json',
-            data: {gra:$("#graTetxt").val(),code:$("#testCodeTetxt").val()},
+            data: {gra:$("#graText").val(),code:$("#testCodeText").val()},
             success:function(result) {
-                //init(eval(result.point),eval(result.line));
-                //$("#path").html(result.path.replaceAll("],","]<br>"));
-                $("#coverTetxt").html(result.coverResult+" \r\n ");
+                $("#coverText").html(result.coverResult+" \r\n ");
+            },
+            error: function (result) {
+            }
+        })
+    }
+    function applyCoverD() {
+        $.ajax({
+            type: 'POST',
+            url: "anltr/getCover",
+            dataType:'json',
+            data: {gra:$("#graText").val(),code:$("#testCodeText").val()},
+            success:function(result) {
+                $("#coverText2").html(result.coverResult+" \r\n ");
             },
             error: function (result) {
             }
@@ -96,9 +110,9 @@
             type: 'POST',
             url: "anltr/getCoverEVO",
             dataType:'json',
-            data: {gra:$("#graTetxt").val(),code:$("#testCodeTetxt").val()},
+            data: {gra:$("#graText").val()},
             success:function(result) {
-                $("#coverTetxt").html(result.coverResult+" \r\n ");
+                $("#coverText").html(result.coverResult+" \r\n ");
             },
             error: function (result) {
             }
@@ -109,9 +123,9 @@
             type: 'POST',
             url: "anltr/getCoverDiffblue",
             dataType:'json',
-            data: {gra:$("#graTetxt").val(),code:$("#testCodeTetxt").val()},
+            data: {gra:$("#graText").val()},
             success:function(result) {
-                $("#coverTetxt2").html(result.coverResult+" \r\n ");
+                $("#coverText2").html(result.coverResult+" \r\n ");
             },
             error: function (result) {
             }
