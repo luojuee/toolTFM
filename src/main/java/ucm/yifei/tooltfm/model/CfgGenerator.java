@@ -11,10 +11,7 @@ import ucm.yifei.tooltfm.reflex.TestRun;
 import ucm.yifei.tooltfm.utils.StringUtils;
 import ucm.yifei.tooltfm.visitors.Java8CustomVisitor;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,7 +114,7 @@ public class CfgGenerator {
 
 	public String EVOTestName = "";
 	public String DiffblueTestName = "";
-	public String OrTestName = "";
+
 	public void createUserJavaFile(Java8CustomVisitor visitor, String code){
 		String method = visitor.stringBuilder.toString()+"}";
 
@@ -131,31 +128,27 @@ public class CfgGenerator {
 		code = code.replaceAll("public","public static");
 		testRun.createJavaFile1(code);
 	}
+	private void createTempTestFile(Java8CustomVisitor visitor, String code){
+		String className = "UserTestFile";
+		Define define = new Define(className);
+		TestRun testRun = new TestRun(define);
+		//创建java文件
+		testRun.createJavaFileTest(code);
+	}
+
 	/**
 	 * 计算覆盖情况(人为输入测试用例)
 	 */
-	public String calculateCoverage(Java8CustomVisitor visitor, TRpath trPaths, String testCode) {
+	public String calculateCU(Java8CustomVisitor visitor, TRpath trPaths, String testCode) throws IOException {
+		createTempTestFile(visitor, testCode);
 
-		String realPath="";
-		String fgResult = "";	//覆盖路径
-		String wfgResult = "";	//未覆盖路径
-		String method = visitor.stringBuilder.toString()+"}";
+		String mName = visitor.getMethodName();
+		mName = mName.substring(0,mName.length()-1);
+		//查找测试文件并切割
+		BufferedReader in = new BufferedReader(new FileReader(
+				"UserTestFile.java"));;
 
-		List<String> listTestcode = StringUtils.splitByLine(testCode);
-		for (String s : listTestcode) {
-			String className = "Test"+ (int)Math.ceil(Math.random()*1000);
-			Define define = new Define(className);
-
-			String cmd = " "+ s +" return arrayList;";
-			TestRun testRun = new TestRun(define);
-			//创建java文件
-			testRun.createJavaFile(cmd,method);
-			//编译
-			if (testRun.makeJavaFile() == 0) {
-				realPath = reflex(testRun, realPath);
-			}
-		}
-		return resultCov(trPaths,realPath,fgResult,wfgResult,0);
+		return calculateCoverage(visitor, mName, in, trPaths);
 	}
 
 	private final String spliteLine = "--------------------\n";
@@ -168,9 +161,7 @@ public class CfgGenerator {
 	 * @return
 	 * @throws IOException
 	 */
-	public String calculateCP(Java8CustomVisitor visitor, String testTool, TRpath trPaths) throws IOException {
-		List<String> codeList;
-		List<List<String>> testList;
+	public String calculateCT(Java8CustomVisitor visitor, String testTool, TRpath trPaths) throws IOException {
 		String mName = visitor.getMethodName();
 		mName = mName.substring(0,mName.length()-1);
 		//查找测试文件并切割
@@ -186,6 +177,12 @@ public class CfgGenerator {
 					+DiffblueTestName +".java"));
 					//+"Test21Test.java"));
 		}
+		return calculateCoverage(visitor, mName, in, trPaths);
+	}
+
+	private String calculateCoverage(Java8CustomVisitor visitor, String mName, BufferedReader in, TRpath trPaths) throws IOException {
+		List<String> codeList;
+		List<List<String>> testList;
 		testList = StringUtils.splitTestFile(in);
 
 		for (int i = 0; i < testList.size(); i++) {
@@ -259,7 +256,6 @@ public class CfgGenerator {
 
 		return strResult.toString();
 	}
-
 	private String modifyCode(String str, int c, String mName){//1:assest+M 2:不是assest+M
 		String []l = StringUtils.split(str, mName);
 		String newStr="";

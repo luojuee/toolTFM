@@ -41,7 +41,8 @@ public class Anltr {
     @ResponseBody
     @RequestMapping("/getCover")
     public String getCover(@RequestParam(name = "gra") String gra,@RequestParam(name = "code") String code) throws IOException {
-        String result = cfg.calculateCoverage(visitor, tr, code);
+        FileAndDeleteFinder.tempFileDelete();
+        String result = cfg.calculateCU(visitor, tr, code);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("coverResult", result);
 
@@ -50,9 +51,9 @@ public class Anltr {
     }
     @ResponseBody
     @RequestMapping("/getCoverEVO")
-    public String getCoverEVO(@RequestParam(name = "gra") String gra,@RequestParam(name = "code") String code) throws IOException {
+    public String getCoverEVO(@RequestParam(name = "gra") String gra) throws IOException {
         FileAndDeleteFinder.tempFileDelete();
-        String result = cfg.calculateCP(visitor,"EVO", tr);
+        String result = cfg.calculateCT(visitor,"EVO", tr);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("coverResult", result);
 
@@ -61,9 +62,9 @@ public class Anltr {
     }
     @ResponseBody
     @RequestMapping("/getCoverDiffblue")
-    public String getCoverDiffblue(@RequestParam(name = "gra") String gra,@RequestParam(name = "code") String code) throws IOException {
+    public String getCoverDiffblue(@RequestParam(name = "gra") String gra) throws IOException {
         FileAndDeleteFinder.tempFileDelete();
-        String result = cfg.calculateCP(visitor, "Diffblue", tr);
+        String result = cfg.calculateCT(visitor, "Diffblue", tr);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("coverResult", result);
 

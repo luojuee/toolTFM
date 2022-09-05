@@ -64,6 +64,18 @@ public class TestRun {
         }
     }
 
+    public void createJavaFileTest(String body) {
+        try {
+            DataOutputStream dos = new DataOutputStream(new FileOutputStream(
+                    define.getClassName()+".java"));
+            dos.writeBytes(body);
+            dos.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public String javacDir = "cmd /c C:\\Users\\ASUS\\.jdks\\temurin-1.8.0_322\\bin\\javac ";
 
     public int makeJavaFile2() {
